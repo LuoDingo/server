@@ -1,33 +1,34 @@
 from flask_login import UserMixin
 from . import db
-from db import ForeignKey, Integer, Column, String, Model
-from db.orm import relationship
+from datetime import datetime
 
-class User(UserMixin, Model):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    email = Column(String(100), unique=True)
-    password = Column(String(100))
-    name = Column(String(100))
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    memberships = db.relationship('Membership', backref='member')
 
-class ChatRoom(Model):
-    __tablename__ = 'chatroom'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50))
-    memberships = relationship("Membership")
+    def __repr__(self):
+        return f"User('{self.id}', '{self.name}', '{self.email}')"
 
-class Membership(Model):
-    __tablename__ = 'membership'
-    chat_id = Column(Integer, ForeignKey('chatroom.id'))
-    user_id = Column(Integer, ForeignKey('user.id'))
+class Chatroom(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    memberships = db.relationship("Membership", lazy=True)
 
-class Message(Model):
-    __tablename__ = 'message'
+class Membership(db.Model):
+    __table_args__ = (
+        db.PrimaryKeyConstraint('chat_id', 'member_id'),
+    )
+    chat_id = db.Column(db.Integer, db.ForeignKey('chatroom.id'))
+    member_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
 
-    timestamp = Column()
-    chat_message_id
-    chat_message_parent_id
-    author_id
-    room_id
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.now)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    room_id = db.Column(db.Integer, db.ForeignKey('chatroom.id'), nullable=False)
 
 
