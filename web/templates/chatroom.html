@@ -37,17 +37,13 @@
         
     socket.on('my response', function(msg) {
         if ('data' in msg) {
-            console.log(msg)
+            console.log("user logged on")
         } else if ('message' in msg) {
-            console.log(msg)
-            console.log('am i running')
-            
             $('h3').remove()
             $('div.message_holder').append( 
                 '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
             )
         }
-        
     })
 </script>
 {% endblock %}
