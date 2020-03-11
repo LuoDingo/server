@@ -25,7 +25,7 @@
             e.preventDefault()
             // let user_name = $('input.username').val();
             let user_input = $('input.message').val();
-            socket.emit( 'my event', {
+            socket.emit('my event', {
                 // user_name: user_name,
                 message: user_input,
                 chat_id: chatid
@@ -36,12 +36,18 @@
     })
         
     socket.on('my response', function(msg) {
-        console.log(msg)
+        if ('data' in msg) {
+            console.log(msg)
+        } else if ('message' in msg) {
+            console.log(msg)
+            console.log('am i running')
+            
+            $('h3').remove()
+            $('div.message_holder').append( 
+                '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+            )
+        }
         
-        $('h3').remove()
-        $('div.message_holder').append( 
-            '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
-        )
     })
 </script>
 {% endblock %}
