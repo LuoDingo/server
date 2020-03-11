@@ -36,5 +36,3 @@ class Message(db.Model):
 
     def __repr__(self):
         return f"Message('{self.id}', '{self.date}', '{self.message}')"
-
-

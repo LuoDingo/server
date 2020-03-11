@@ -6,6 +6,48 @@
 </h1>
 <div>
     <span>availiable chatrooms</span>
+    {% for item in chatrooms %}
+        <p>{{item.name}}</p>
+    {% endfor %}
+    
+    <form id="newChatroom">
+        <input type="text" placeholder="new chatroom" name="chatroom_name"/>
+        <button type="submit">enter</button>
+    </form>
+    <script type="text/javascript">
+        var form = document.getElementById("newChatroom")
+        form.childNodes[3].addEventListener("click", function(e) {
+            e.preventDefault()
+            text = form.childNodes[1].value
 
+            data = {}
+            
+            if (!text) { // if theres no text we exit
+                return
+            } else {
+                data['chat_name'] = text
+            }
+
+            var xhr = new XMLHttpRequest();
+
+            let url = 'http://localhost:5000/chatroom/create'
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState === XMLHttpRequest.DONE) {
+                    var status = xhr.status;
+                    if (status === 0 || (200 >= status && status < 400)) {
+                    // The request has been completed successfully
+                        console.log(xhr.responseText);
+                        window.location.reload()
+                    } else {
+                    // Oh no! There has been an error with the request!
+                        console.log("something happend status: " + status)
+                    }
+                }
+            }
+            xhr.send(JSON.stringify(data))
+        })
+    </script>
 </div>
 {% endblock %}
