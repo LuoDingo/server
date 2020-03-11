@@ -7,7 +7,7 @@
 <div>
     <span>availiable chatrooms</span>
     {% for item in chatrooms %}
-        <p>{{item.name}}</p>
+        <p><a href="/chatroom/{{item.id}}">{{item.name}}</a></p>
     {% endfor %}
     
     <form id="newChatroom">
