@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required, current_user
+from sqlalchemy import desc
 from . import db
 from . import events
 from .models import Chatroom, Message
@@ -14,9 +15,10 @@ def index():
 @main.route('/chatroom/<int:chat_id>', methods=['GET'])
 @login_required
 def chatroom_view(chat_id):
-    stuff = db.session.query(Message).filter(Message.room_id == chat_id).all()
+    stuff = Message.query.filter_by(room_id=chat_id).order_by(Message.date).limit(50).all()
     chatroom = Chatroom.query.get(chat_id)
-    print(stuff)
+    for item in stuff:
+        print(item)
     return render_template('chatroom.html', is_authenticated=current_user.is_authenticated, chat_id=chat_id)
 
 @main.route('/chatroom/create', methods=['POST'])

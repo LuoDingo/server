@@ -35,4 +35,4 @@ class Message(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('chatroom.id'), nullable=False)
 
     def __repr__(self):
-        return f"Message('{self.id}', '{self.date}', '{self.message}')"
+        return f"Message('{self.id}', '{self.date}', '{self.text}')"
