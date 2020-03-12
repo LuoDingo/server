@@ -1,10 +1,20 @@
 from . import socketio
 from flask_login import current_user
+from .models import Message
+from . import db
 
 def messageReceived(methods=['GET','POST']):
     print('message was recieved')
 
 @socketio.on('my event')
-def handle_my_custom_event(json, methods=['GET', 'POST']):
-    json['user'] = current_user.name
-    socketio.emit('my response', json, callback=messageReceived)
+def user_online(json, methods=['GET', 'POST']):
+    if 'data' in json:
+        print(json['data'])
+        socketio.emit('my response', {'data':json['data']}, callback=messageReceived)
+    else:
+        print("typing happened")
+        json['user'] = current_user.name
+        new_message = Message(author_id=current_user.id, text=json['message'], room_id=json['chat_id'])
+        db.session.add(new_message)
+        db.session.commit()
+        socketio.emit('my response', json, callback=messageReceived)

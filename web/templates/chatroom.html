@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="conatiner">
+<div data-chatid={{ chat_id }} id="data" class="chatData container">
     <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
     <div class="message_holder"></div>
     <form action="" method="POST">
@@ -15,7 +15,7 @@
 <script type="text/javascript">
 
     var socket = io.connect('http://' + document.domain + ':' + location.port);
-
+    var chatid = document.querySelector('#data').dataset.chatid
     socket.on('connect', function() {
         socket.emit('my event', {
             data: 'User Connected'
@@ -25,21 +25,25 @@
             e.preventDefault()
             // let user_name = $('input.username').val();
             let user_input = $('input.message').val();
-            socket.emit( 'my event', {
+            socket.emit('my event', {
                 // user_name: user_name,
-                message: user_input
+                message: user_input,
+                chat_id: chatid
+                // chatroom number
             });
             $('input.message').val('').focus()
         })
     })
         
     socket.on('my response', function(msg) {
-        console.log(msg)
-        
-        $('h3').remove()
-        $('div.message_holder').append( 
-            '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
-        )
+        if ('data' in msg) {
+            console.log("user logged on")
+        } else if ('message' in msg) {
+            $('h3').remove()
+            $('div.message_holder').append( 
+                '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+            )
+        }
     })
 </script>
 {% endblock %}
