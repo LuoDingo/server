@@ -34,6 +34,23 @@
             $('input.message').val('').focus()
         })
     })
+    
+    url = 'http://localhost:5000/chatroom/history/' + chatid
+    fetch(url)
+        .then((response) => {
+            console.log(response)
+            return response.json();
+        })
+        .then((data) => {
+            for (msg of data) {
+                console.log(msg)
+                $('h3').remove()
+                $('div.message_holder').append( 
+                    '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+                )
+            }
+            
+        })
         
     socket.on('my response', function(msg) {
         if ('data' in msg) {
