@@ -8,6 +8,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
     memberships = db.relationship('Membership', backref='member')
+    posts = db.relationship('Message', backref='message')
 
     def __repr__(self):
         return f"User('{self.id}', '{self.name}', '{self.email}')"
