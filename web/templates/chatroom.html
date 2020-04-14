@@ -3,7 +3,7 @@
 {% block content %}
 <div class="columns">
     <div class="column is-three-quarters">
-        <div data-chatid={{ chat_id }} id="data" class="chatData container">
+        <div data-chatid={{ chat_id }} id="data" class="chatData container has-background-info">
             <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
             <div class="message_holder"></div>
             <form class="columns" action="" method="POST">
@@ -17,10 +17,14 @@
         </div>
     </div>
 
-    <div class="column">
-        <span>hello</span>
+    <div class="column has-background-info">
+        <span>suggestions</span>
+        <form method="POST">
+            <input class="input" type="text" />
+            <input class="button" type="submit" />
+        </form>
+        <div class="suggestion_holder"></div>
     </div>
-    
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
