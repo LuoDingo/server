@@ -1,13 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div data-chatid={{ chat_id }} id="data" class="chatData container">
-    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-    <div class="message_holder"></div>
-    <form action="" method="POST">
-        <input type="text" class="message" placeholder="Messages"/>
-        <input type="submit"/>
-    </form>
+<div class="columns">
+    <div class="column is-three-quarters">
+        <div data-chatid={{ chat_id }} id="data" class="chatData container">
+            <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+            <div class="message_holder"></div>
+            <form class="columns" action="" method="POST">
+                <div class="container column is-three-quarters">
+                    <input class="message input" type="text"  placeholder="Messages"/>
+                </div>
+                <div class="container column">
+                    <input class="button" type="submit"/>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="column">
+        <span>hello</span>
+    </div>
+    
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -25,13 +38,15 @@
             e.preventDefault()
             // let user_name = $('input.username').val();
             let user_input = $('input.message').val();
-            socket.emit('my event', {
+            if (user_input) {
+                socket.emit('my event', {
                 // user_name: user_name,
                 message: user_input,
                 chat_id: chatid
                 // chatroom number
-            });
-            $('input.message').val('').focus()
+                });
+                $('input.message').val('').focus()
+            }
         })
     })
     
@@ -49,7 +64,6 @@
                     '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
                 )
             }
-            
         })
         
     socket.on('my response', function(msg) {
