@@ -1,3 +1,14 @@
+"""
+This is a module to load a neural network model and initialize the search space.
+The necessary files to reload a trained model is stored in data directory.
+It includes: the vocabulary of inputs, the vocabulary of outputs, sentence
+candidates stored in csv format, and model stored in .pt extension.
+The vocabularies are necessary to map words into unique numbers.
+During initialization, the object numericalize sentences stored as strings in
+a csv file.
+
+The object, search_space, will be imported into web/main.py.
+"""
 from sentence_suggestion import inference
 import os
 

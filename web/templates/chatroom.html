@@ -49,8 +49,11 @@
     });
 
     var suggestionsInput = $('#suggestions_input').on('submit', function(e) {
+        // this is called when user hits `submit` button for suggestion
         e.preventDefault()
         let user_input = $('input#suggestion').val();
+        // send user's input and the number of sentence sugesstions to query
+        // @main.py:kbest_suggestion
         let input = {'keywords':user_input, 'num_return':3}
         fetch('/chatroom/suggestion', {
           method: 'POST',
@@ -58,9 +61,11 @@
           body: JSON.stringify(input)
         })
         .then(function(e) {
+          // e.json() contains sentence suggestions in json format
           return e.json();
         })
         .then(function(json) {
+          // json stores sentence suggestions ordered by their probabilites
           console.log(json);
         });
     });
