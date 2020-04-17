@@ -21,3 +21,8 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# a saved neural network model for suggestion
+# it's too big to upload on github
+.web.searcher.data/
+*.pt
