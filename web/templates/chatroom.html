@@ -21,14 +21,14 @@
         <span>suggestions</span>
         <form id="suggestions_input" method="POST">
             <input id="suggestion" class="input" type="text" />
-            <input class="button" type="submit" />
+            <input class="button" type="submit"name="keywords"  />
         </form>
         <div class="suggestion_holder"></div>
     </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script type="text/javascript">
     var socket = io.connect('http://' + document.domain + ':' + location.port);
     var chatid = document.querySelector('#data').dataset.chatid
@@ -51,7 +51,18 @@
     var suggestionsInput = $('#suggestions_input').on('submit', function(e) {
         e.preventDefault()
         let user_input = $('input#suggestion').val();
-        console.log(user_input)
+        let input = {'keywords':user_input, 'num_return':3}
+        fetch('/chatroom/suggestion', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify(input)
+        })
+        .then(function(e) {
+          return e.json();
+        })
+        .then(function(json) {
+          console.log(json);
+        });
     });
 
     socket.on('connect', function() {
@@ -59,7 +70,7 @@
             data: 'User Connected'
         });
     })
-    
+
     url = 'http://localhost:5000/chatroom/history/' + chatid
     fetch(url)
         .then((response) => {
@@ -70,19 +81,19 @@
             for (msg of data) {
                 console.log(msg)
                 $('h3').remove()
-                $('div.message_holder').append( 
-                    '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+                $('div.message_holder').append(
+                    '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>'
                 )
             }
         })
-        
+
     socket.on('my response', function(msg) {
         if ('data' in msg) {
             console.log("user logged on")
         } else if ('message' in msg) {
             $('h3').remove()
-            $('div.message_holder').append( 
-                '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+            $('div.message_holder').append(
+                '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>'
             )
         }
     })
