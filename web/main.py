@@ -5,6 +5,9 @@ from . import events
 from .models import Chatroom, Message, User
 import json
 
+# an object of SearchSpace class in inference.py
+from .searcher import search_space
+
 main = Blueprint('main', __name__)
 
 @main.route('/')
@@ -15,7 +18,7 @@ def index():
 @login_required
 def chatroom_view(chat_id):
     chatroom = Chatroom.query.get(chat_id)
-    
+
     return render_template('chatroom.html', is_authenticated=current_user.is_authenticated, chat_id=chat_id)
 
 @main.route('/chatroom/history/<int:chat_id>')
@@ -44,6 +47,20 @@ def create_chatroom():
     db.session.add(new_room)
     db.session.commit()
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@main.route('/chatroom/suggestion', methods=['GET','POST'])
+@login_required
+def kbest_suggestion():
+    data = request.get_json()
+    keywords = data['keywords']
+    k = data['num_return']
+    suggestions = search_space.search_kbest(k=k,
+                                            keywords=keywords)
+    _suggestions = {}
+    for rank, sentence in enumerate(suggestions):
+        _suggestions.update({rank+1:sentence[0]})
+    print(_suggestions)
+    return jsonify(_suggestions)
 
 @main.route('/profile')
 @login_required
