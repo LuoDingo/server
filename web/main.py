@@ -86,6 +86,7 @@ def kbest_suggestion():
     _suggestions = {}
     for rank, sentence in enumerate(suggestions):
         _suggestions.update({rank+1:sentence[0]})
+    print(suggestions)
     return jsonify(_suggestions)
 
 @main.route('/profile')
