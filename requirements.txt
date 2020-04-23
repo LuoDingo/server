@@ -1,3 +1,5 @@
+--extra-index-url https://test.pypi.org/simple/
+
 Click==7.0
 Flask==1.1.1
 Flask-Login==0.5.0
