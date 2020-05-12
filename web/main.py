@@ -73,16 +73,16 @@ def kbest_suggestion():
 
     Example
     -------
-    >>> {keywords:'what time movie', num_return:2}
+    >>> {keywords:['what', 'time', 'movie'], num_return:2}
     {1: "which theater do you want to go to ?",
      2: "how many tickets would you like ?"}
 
     """
     data = request.get_json()
-    keywords = data['keywords']
+    keywords = data['keywords'].split()
     k = data['num_return']
-    suggestions = search_space.search_kbest(k=k,
-                                            keywords=keywords)
+    suggestions = search_space.beam_search(src=keywords,
+                                           beam_width=k)
     _suggestions = {}
     for rank, sentence in enumerate(suggestions):
         _suggestions.update({rank+1:sentence[0]})

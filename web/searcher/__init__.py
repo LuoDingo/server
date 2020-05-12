@@ -9,7 +9,13 @@ a csv file.
 
 The object, search_space, will be imported into web/main.py.
 """
-from sentence_suggestion import inference
+from zencorpora.rnn_search import SearchSpace
+
+from sentence_suggestion.inference_model import NNModel
+from sentence_suggestion.inference_model import DataLoader
+
+from torch.nn.functional import log_softmax
+
 import os
 
 data_dir = os.path.join('web', 'searcher', 'data')
@@ -17,11 +23,20 @@ data_dir = os.path.join('web', 'searcher', 'data')
 INPUT_VOCAB_PATH = os.path.join(data_dir, 'MASKED_TEXT.Field')
 OUTPUT_VOCAB_PATH = os.path.join(data_dir, 'TARGET_TEXT.Field')
 DEVICE_TYPE = 'cpu'
-SENTENCE_CANDIDATES_PATH = os.path.join(data_dir, 'space_sample.csv')
+SENTENCE_CANDIDATES_PATH = os.path.join(data_dir, 'search_space.csv')
 
-search_space = inference.SearchSpace(
-    input_vocab_path=INPUT_VOCAB_PATH,
-    output_vocab_path=OUTPUT_VOCAB_PATH,
-    device_type=DEVICE_TYPE,
-    sentence_candidates_path=SENTENCE_CANDIDATES_PATH,
+loader = DataLoader()
+model = NNModel(input_vocab_path=INPUT_VOCAB_PATH,
+                output_vocab_path=OUTPUT_VOCAB_PATH,
+                device_type=DEVICE_TYPE)
+
+search_space = SearchSpace(
+    src_field=model.input_field,
+    trg_field=model.output_field,
+    encoder=model.encoder,
+    decoder=model.decoder,
+    corpus_path=SENTENCE_CANDIDATES_PATH,
+    hide_progress=False,
+    score_function=log_softmax,
+    device=model.device,
 )
