@@ -1,40 +1,81 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div data-chatid={{ chat_id }} id="data" class="chatData container">
-    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-    <div class="message_holder"></div>
-    <form action="" method="POST">
-        <input type="text" class="message" placeholder="Messages"/>
-        <input type="submit"/>
-    </form>
+<div class="columns">
+    <div class="column is-three-quarters">
+        <div data-chatid={{ chat_id }} id="data" class="chatData container has-background-info">
+            <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+            <div class="message_holder"></div>
+            <form id="chat_input" class="columns" action="" method="POST">
+                <div class="container column is-three-quarters">
+                    <input id="message" class="input" type="text"  placeholder="Messages"/>
+                </div>
+                <div class="container column">
+                    <input class="button" type="submit"/>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="column has-background-info">
+        <span>suggestions</span>
+        <form id="suggestions_input" method="POST">
+            <input id="suggestion" class="input" type="text" />
+            <input class="button" type="submit"name="keywords"  />
+        </form>
+        <div class="suggestion_holder"></div>
+    </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script type="text/javascript">
-
     var socket = io.connect('http://' + document.domain + ':' + location.port);
     var chatid = document.querySelector('#data').dataset.chatid
+
+    var chatInput = $('#chat_input').on('submit', function(e) {
+        e.preventDefault()
+        // let user_name = $('input.username').val();
+        let user_input = $('input#message').val();
+        if (user_input) {
+            socket.emit('my event', {
+            // user_name: user_name,
+            message: user_input,
+            chat_id: chatid
+            // chatroom number
+            });
+            $('input.message').val('').focus()
+        }
+    });
+
+    var suggestionsInput = $('#suggestions_input').on('submit', function(e) {
+        // this is called when user hits `submit` button for suggestion
+        e.preventDefault()
+        let user_input = $('input#suggestion').val();
+        // send user's input and the number of sentence sugesstions to query
+        // @main.py:kbest_suggestion
+        let input = {'keywords':user_input, 'num_return':3}
+        fetch('/chatroom/suggestion', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify(input)
+        })
+        .then(function(e) {
+          // e.json() contains sentence suggestions in json format
+          return e.json();
+        })
+        .then(function(json) {
+          // json stores sentence suggestions ordered by their probabilites
+          console.log(json);
+        });
+    });
+
     socket.on('connect', function() {
         socket.emit('my event', {
             data: 'User Connected'
         });
-
-        var form = $('form').on('submit', function(e) {
-            e.preventDefault()
-            // let user_name = $('input.username').val();
-            let user_input = $('input.message').val();
-            socket.emit('my event', {
-                // user_name: user_name,
-                message: user_input,
-                chat_id: chatid
-                // chatroom number
-            });
-            $('input.message').val('').focus()
-        })
     })
-    
+
     url = 'http://localhost:5000/chatroom/history/' + chatid
     fetch(url)
         .then((response) => {
@@ -45,20 +86,19 @@
             for (msg of data) {
                 console.log(msg)
                 $('h3').remove()
-                $('div.message_holder').append( 
-                    '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+                $('div.message_holder').append(
+                    '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>'
                 )
             }
-            
         })
-        
+
     socket.on('my response', function(msg) {
         if ('data' in msg) {
             console.log("user logged on")
         } else if ('message' in msg) {
             $('h3').remove()
-            $('div.message_holder').append( 
-                '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>' 
+            $('div.message_holder').append(
+                '<div><b style="color: #000">'+msg.user+'</b> '+msg.message+'</div>'
             )
         }
     })

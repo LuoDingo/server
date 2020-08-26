@@ -5,6 +5,9 @@ from . import events
 from .models import Chatroom, Message, User
 import json
 
+# an object that contains search space and searching functionallity
+from .searcher import search_space
+
 main = Blueprint('main', __name__)
 
 @main.route('/')
@@ -15,7 +18,7 @@ def index():
 @login_required
 def chatroom_view(chat_id):
     chatroom = Chatroom.query.get(chat_id)
-    
+
     return render_template('chatroom.html', is_authenticated=current_user.is_authenticated, chat_id=chat_id)
 
 @main.route('/chatroom/history/<int:chat_id>')
@@ -44,6 +47,47 @@ def create_chatroom():
     db.session.add(new_room)
     db.session.commit()
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@main.route('/chatroom/suggestion', methods=['GET','POST'])
+@login_required
+def kbest_suggestion():
+    """Searches for the sentence suggestions in the searching space
+
+    Parameters
+    ----------
+    keywords : str
+        A bunch of keywords entered by users. keywords are expected to be
+        separated by white spaces, e.g. 'what time movie'.
+    num_return : int
+        The number of sentences to be fetched from the sentence candidates in
+        the searching space.
+
+    Return
+    ------
+    suggestions : json
+        The most probable num_return number of sentences found in the search
+        space. Data contains sentences with their ranks,
+        e.g. (sentence 10, 1), (sentence 3, 2) ..., (sentence n, k)
+        where the numbers represent the rank of likelihood. For example,
+        sentence 10 is the most likely sentence given keywords.
+
+    Example
+    -------
+    >>> {keywords:['what', 'time', 'movie'], num_return:2}
+    {1: "which theater do you want to go to ?",
+     2: "how many tickets would you like ?"}
+
+    """
+    data = request.get_json()
+    keywords = data['keywords'].split()
+    k = data['num_return']
+    suggestions = search_space.beam_search(src=keywords,
+                                           beam_width=k)
+    _suggestions = {}
+    for rank, sentence in enumerate(suggestions):
+        _suggestions.update({rank+1:sentence[0]})
+    print(suggestions)
+    return jsonify(_suggestions)
 
 @main.route('/profile')
 @login_required
